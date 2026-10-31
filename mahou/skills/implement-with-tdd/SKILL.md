@@ -12,7 +12,7 @@ Follow `implement` from start to end. Only how each repository's code gets writt
 
 ## Two subagents per repository
 
-For each repository, spawn two subagents from this session, a tester and an implementer, labelled `<repository>: tester` and `<repository>: implementer`. Both get the repository's full brief from `implement` and work in the same checkout, on the same branch. Neither spawns the other, and they never talk to each other directly. Every exchange passes through this session, which relays it and shows the user what was said as each message arrives.
+For each repository, spawn two subagents from this session, a tester and an implementer, labelled `<repository>: tester` and `<repository>: implementer`. Both get the repository's full brief from `implement` and work in the same checkout, on the same branch. Neither spawns the other, and they never talk to each other directly. Every exchange passes through this session. The session relays each exchange between the tester and the implementer and records it in the repository's section of `implementation-status.md`. The session does not show an exchange to the user when the exchange arrives.
 
 Neither subagent commits. That is the only change to the brief's repository rules.
 
