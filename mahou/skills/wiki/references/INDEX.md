@@ -5,6 +5,7 @@
 - [`gemini`](gemini/INDEX.md): what the Gemini API accepts as input and how it describes it
 - [`markdown`](markdown/INDEX.md): parsing markdown into a syntax tree outside a renderer
 - [`modal`](modal/INDEX.md): calling Modal functions from outside its Python client
+- [`naming`](naming/INDEX.md): how to name variables, props and state in code
 - [`node`](node/INDEX.md): running and distributing a Node program
 - [`tanstack-query`](tanstack-query/INDEX.md): reaching an API through TanStack Query from React
 - [`tanstack-start`](tanstack-start/INDEX.md): building and deploying a TanStack Start app
