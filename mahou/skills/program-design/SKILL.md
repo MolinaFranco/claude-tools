@@ -14,6 +14,8 @@ Takes a change whose decisions are settled and specifies how it lands in the cod
 
 Every part rests on the code and follows the conventions, and every part is a representation of the code, never the code itself. No function bodies, no declarations in the language's syntax, no snippet that would compile. A shape is a JSON Schema, a call path is a callstack, a value is a line in a derivation ledger, a file is a path in the module list. When a part cannot be stated without writing code, the part is too low; say so and lift it.
 
+The user can ask to see a part as code, such as a diff of the change against the code as it stands, to understand how the part changes the code as it stands. Draw the code next to the part it details, marked as a sketch, and keep it out of the record. The part stays the representation, and the code is not a decision the user settles.
+
 Because it proposes, ground every proposal in the code and in the conventions you read for the proposal's root. With each proposal, cite the code or the convention it follows, the code as a reference in the form `basics` gives under Referencing code. A proposal with nothing behind it is a guess, and the user cannot tell the two apart.
 
 When a part changes something that exists, its representation shows what the change adds, alters and removes, marked the way the part's reference says.
