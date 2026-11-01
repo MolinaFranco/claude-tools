@@ -1,6 +1,6 @@
 ---
 name: implement
-description: Implements a change whose design and test design are settled, by delegating one subagent per repository with the full context: the tasks, the design notes, the test matrix rows for that repository, the repository rules and the report shape. Collects the results, then delegates the agentic review on the branches and the manual validation rows, one repository at a time against the local system. Use after test-design, before human-review.
+description: Implements a change whose design and test design are settled, by delegating one subagent per repository with the full context: the tasks, the design notes, the test matrix rows for that repository, the repository rules and the report shape. Collects the results, then delegates the manual validation rows one repository at a time against the local system, fixing failures against previous decisions until every row passes, the round-based agentic review on the branches, and the design reconciliation. Use after test-design, before human-review.
 argument-hint: <the tasks, the design notes, the test matrices, the repositories and the branch name>
 ---
 
@@ -8,7 +8,7 @@ Load mahou:basics first. Then read `.mahou/implement.md` if present: it is where
 
 # Implement
 
-Takes a change the user has designed and test-designed and gets it written, one repository at a time, by subagents that receive everything a person joining the work would need. It composes the briefs, dispatches, relays what comes back, and delegates the passes that follow the code: the agentic review, the manual validation and the consistency check, each to a subagent per repository.
+Takes a change the user has designed and test-designed and gets it written, one repository at a time, by subagents that receive everything a person joining the work would need. It composes the briefs, dispatches, relays what comes back, and delegates the passes that follow the code, in this order: the manual validation, which fixes what fails against previous decisions, the agentic review, and the consistency check, each to a subagent per repository.
 
 ## Opening
 
@@ -42,33 +42,45 @@ Keep `implementation-status.md` in the change's scratch folder for the run. Crea
 - **Blocking questions.** Each question a subagent is waiting on, until the user answers it.
 - **Shared.** A change, highlight or open item that applies to several repositories, described once with the repositories it covers.
 - **One section per repository**, with:
-  - **Status.** Its checkout and branch, the stage it is in (implementing, reviewing, fix round, validated), its commits, the checks' last result, and the subagent or check running on it. Rewrite it when any of these changes.
+  - **Status.** Its checkout and branch, the stage it is in (implementing, validating, fixing blocked rows, validated, reviewing round n, reviewed, reconciling), its commits, the checks' last result, and the subagent or check running on it. Rewrite it when any of these changes.
   - **Highlights.** One line per event that the status does not show and that a later report must mention, such as a departure from the design or a fact that changed a plan. Remove a line once a report has carried it and the event no longer bears on anything open.
   - **Open items.** Every decision waiting on the user, each with the full context the report needs. Remove an item when the user settles it, and record the settlement where `basics` says decisions live.
 
-A subagent kept for further work, such as the review, a fix round or the manual validation, carries every earlier task in its context. Check its context use whenever it finishes a task. When its context use nears half, have the subagent run `/compact` with a list of what to keep, such as the checkout it works in, the safety rules and where the briefs live, then send the next task. Compact only between tasks, never while the subagent is working on one.
+A subagent kept for further work, such as the manual validation, a fix or the review, carries every earlier task in its context. Check its context use whenever it finishes a task. When its context use nears half, have the subagent run `/compact` with a list of what to keep, such as the checkout it works in, the safety rules and where the briefs live, then send the next task. Compact only between tasks, never while the subagent is working on one.
 
 When the user steers mid-run, forward the steering to every subagent it concerns as a supervisor directive; a subagent that is mid-turn picks the directive up when it finishes the turn.
 
-## Agentic review
-
-As each implementation subagent reports, dispatch the agentic review for that repository without waiting for the others: a subagent invokes mahou:agentic-review on that repository's changeset, the branch measured against the default branch. When the repository's implementation subagent is still available, send it only this new instruction; when a new subagent is spawned, its brief carries the same change context, tasks and repository rules the implementation brief did, plus the instruction. The review fixes inside its own bounds and leaves its fixes uncommitted. When the review ends, the subagent that ran it commits the fixes on the branch through mahou:commit-changes. The subagent commits the groups that `commit-changes` proposes without asking the user to confirm them. Record the fixes and their commits in the repository's status.
-
-Then record every finding the review skipped as an open item of the repository: apply it or leave it. Give each finding with enough context to rule on it without asking back: the problem the reviewer saw and why the reviewer proposed the change, then why the review skipped the finding. A finding the user decides to apply becomes a task, which an implementation subagent works like the rest. Record each finding the user leaves as skipped in the change's scratch folder.
-
-Run the same review on every later batch of fixes a subagent makes on a repository, such as the consistency fixes or a round of review fixes, before you record the fixes as done. Record that review's skipped findings the same way.
-
 ## Manual validation
 
-The manual rows run one repository at a time against the shared local system, from the repository the others depend on outward, so two subagents never mutate the same system at once. For each repository, one subagent gets the manual rows with their expected outcomes and setup, and the identities and inputs the user provides; the repository's implementation subagent, when still available, gets only that, and a newly spawned one gets the full implementation brief as well. It loads mahou:validate, runs the rows through it, and produces the report artifact `validate` requires. It fixes nothing during validation, and a failure comes back to the user as a decision. The next repository starts when the previous one has reported.
+Validation runs before the review, so the review runs once over the code that passes validation instead of after every batch of fixes.
+
+The manual rows run one repository at a time against the shared local system, from the repository the others depend on outward, so two subagents never mutate the same system at once. A repository's validation starts once its implementation subagent has reported and the repository before it has finished its validation run. For each repository, one subagent gets the manual rows with their expected outcomes and setup, and the identities and inputs the user provides; the repository's implementation subagent, when still available, gets only that, and a newly spawned one gets the full implementation brief as well. It loads mahou:validate, runs the rows through it, and produces the report artifact `validate` requires.
+
+### Fixing without asking
+
+The subagent fixes a failing row without asking, inside the bounds mahou:validate gives, and re-runs the rows until every row passes or is blocked. Every fix stays in the subagent's repository: when the cause sits in another repository, the row is blocked and the report names the cause and the repository. A bug the run finds that no row and no previous decision covers is reported, not fixed. The subagent commits its fixes through mahou:commit-changes without asking the user to confirm the groups, and reports the rows with their results, each fix with what failed, what the fix changed and its commit, each blocked row, and each bug it left unfixed.
+
+Record the fixes in the repository's status, each blocked row as a blocking question with the evidence and what each way out changes in the designed behaviour, and each unfixed bug as an open item. The next repository's validation starts without waiting for the user's answers.
+
+### Fixing what the user decides
+
+Once the user settles a blocked row, the repository's subagent applies the decision exactly as the user decided it, commits it, and re-runs the affected rows, plus any row the fix's code reaches. When the decision needs another repository, that repository's subagent applies it and the rows that depend on it re-run in both. A re-run waits for the system like any other run. Repeat until every row of every repository passes; the repository's stage is then validated.
+
+## Agentic review
+
+When every repository is validated, dispatch the agentic review for every repository at once: a subagent invokes mahou:agentic-review on that repository's changeset, the branch measured against the default branch. When the repository's implementation subagent is still available, send it only this new instruction; when a new subagent is spawned, its brief carries the same change context, tasks and repository rules the implementation brief did, plus the instruction. The review runs in rounds, each with fresh reviewers and the ledger of the earlier rounds' fixes and skips, so a fix is not undone in a later round. It fixes inside its own bounds and leaves its fixes uncommitted. The review does not change behaviour, so validation does not run again after it.
+
+The ledger of each repository's review is the round status the user reads mid-run; point to it from the repository's status. When the review ends, the subagent that ran it commits the fixes on the branch through mahou:commit-changes, committing the groups `commit-changes` proposes without asking the user to confirm them. Record the fixes and their commits in the repository's status.
+
+Then record every finding the review skipped as an open item of the repository: apply it or leave it. Give each finding with enough context to rule on it without asking back: the problem the reviewer saw and why the reviewer proposed the change, then why the review skipped the finding. A finding the user decides to apply is applied by an implementation subagent and committed; it gets no further review round, since mahou:human-review reads it next. Record each finding the user leaves as skipped in the change's scratch folder.
 
 ## Design reconciliation
 
-The code that lands is what was actually built, and the notes drift from it the moment a child deviates, simplifies, or meets a platform fact. When the manual validation has reported, collect the drift: every flag a subagent raised about a design mismatch, every pointing callout in a touched note whose condition has now landed, and every diagram that renders a shape the change altered. Then dispatch a `mahou:consistency-checker` per repository with a summary of what the change replaced. It finds the leftovers and disagreements that no flag named. The user settles each item. An implementation subagent applies the agreed code fixes, and the agreed documentation updates run through mahou:write-documentation once, with the whole documentation in view.
+The code that lands is what was actually built, and the notes drift from it the moment a child deviates, simplifies, or meets a platform fact. When every repository's review has ended and its skipped findings are settled, collect the drift: every flag a subagent raised about a design mismatch, every pointing callout in a touched note whose condition has now landed, and every diagram that renders a shape the change altered. Then dispatch a `mahou:consistency-checker` per repository with a summary of what the change replaced. It finds the leftovers and disagreements that no flag named. The user settles each item. An implementation subagent applies the agreed code fixes, re-runs the manual rows those fixes reach, and commits; the fixes get no review round, since mahou:human-review reads them next. The agreed documentation updates run through mahou:write-documentation once, with the whole documentation in view.
 
 ## Ending
 
-When every subagent is done, give the final report through mahou:implementation-status-report, then add per repository the manual rows with their results and the report artifact path. mahou:human-review follows when the user asks for it.
+When every subagent is done, give the final report through mahou:implementation-status-report, then add per repository the manual rows with their results, every failure validation fixed without asking (the row, what failed, what the fix changed and its commit), the report artifact path and the review ledger path. mahou:human-review follows when the user asks for it.
 
 ## What this skill is not
 

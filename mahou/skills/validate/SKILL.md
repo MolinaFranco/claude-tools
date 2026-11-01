@@ -1,6 +1,6 @@
 ---
 name: validate
-description: Runs a change's manual validation rows against the running system and leaves an evidence report. Takes the manual rows from mahou:test-design, or the scenarios the user names when there is no test design, drives each one through a browser, over HTTP, or on an Android device, records what it observed with before and after state, and reports every failure as a decision without fixing anything. Use after the tests are green, before human-review, or whenever the user asks to see a change working.
+description: Runs a change's manual validation rows against the running system and leaves an evidence report. Takes the manual rows from mahou:test-design, or the scenarios the user names when there is no test design, drives each one through a browser, over HTTP, or on an Android device, records what it observed with before and after state, fixes a failing row when the fix only makes the code do what previous decisions settled, and reports every other failure and every bug outside the rows without fixing it. Use after the tests are green, before human-review, or whenever the user asks to see a change working.
 argument-hint: <the manual rows or scenarios, the change under validation and the repositories it touches>
 ---
 
@@ -56,7 +56,19 @@ Load the reference for the surface under validation:
 
 When a change touches more than one surface, load each reference and run each row against its surface. Follow each row's setup, perform its steps, observe, and record PASS or FAIL with the evidence the reference names. Every row runs, in id order; a failing row is recorded and the run continues.
 
-**Fix nothing during validation.** A failure comes back to the user as a decision, with its evidence. When a failure blocks later rows, say which rows it blocks and ask before skipping them.
+## Fixing what fails
+
+A row fails when the system departs from the row's expected outcome, or from what previous decisions settled for that path. Fix that failure without asking, then re-run the row and any row the fix's code reaches, until every row passes or is blocked. The bounds:
+
+- The fix makes the code do what previous decisions settled. It never changes a row's expected outcome or a previous decision, and it never adds behaviour no previous decision settled.
+- The fix stays in the repositories of the change under validation.
+- Linters and the relevant suites pass after each fix.
+
+A failure whose fix would break a bound is blocked: record it with its evidence, say what the fix would change in what previous decisions settled, and continue with the rest of the rows. When a blocked row blocks later rows, say which rows it blocks and ask before skipping them.
+
+A bug the run finds that no row and no previous decision covers, such as a defect that predates the change on the path a row takes, or a problem in a flow the change does not touch, is not fixed. Record it with its evidence and hand it to the user as a finding.
+
+Leave the fixes uncommitted unless the caller says to commit them, and list each one in the report with the row it fixed.
 
 ## The report
 
@@ -68,10 +80,11 @@ In order:
 
 1. **Header**: the change, the branches and commits under validation, how the system was brought up, the identities and inputs used.
 2. **Setup and mutations**: every configuration change made for the run and the mutate and revert pair of every record touched, with before and after values.
-3. **One section per row**, in the order they ran: the setup the row needed, the steps performed, what was observed, PASS or FAIL, and the evidence in the shape the surface's reference gives.
-4. **Summary table**: every row with its result, and the rows that could not be run with the reason.
+3. **One section per row**, in the order they ran: the setup the row needed, the steps performed, what was observed, PASS or FAIL, the evidence in the shape the surface's reference gives, and each fix made for the row: what failed, what the fix changed, and the run that passed after it.
+4. **Bugs not fixed**: every bug found that no row and no previous decision covers, with its evidence.
+5. **Summary table**: every row with its result (passed, passed after a fix, blocked), and the rows that could not be run with the reason.
 
-The reply loads mahou:report and gives: the artifact path, which surfaces were exercised, the rows that passed, every failure stated as a failure with where its evidence sits, and every row not run with why.
+The reply loads mahou:report and gives: the artifact path, which surfaces were exercised, the rows that passed, each fix with the row it fixed, what failed and what the fix changed, every blocked row stated as a failure with where its evidence sits and what its fix would change, every bug left unfixed, and every row not run with why.
 
 ## Boundaries
 

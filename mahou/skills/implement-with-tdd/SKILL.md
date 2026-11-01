@@ -8,7 +8,7 @@ Load mahou:basics first, then mahou:implement. Then read `.mahou/implement-with-
 
 # Implement with TDD
 
-Follow `implement` from start to end. Only how each repository's code gets written changes, in `implement`'s Dispatch and collect. The opening, the brief, the agentic review, the design reconciliation, the manual validation and the ending stay as `implement` states them.
+Follow `implement` from start to end. Only how each repository's code gets written changes, in `implement`'s Dispatch and collect. The opening, the brief, the manual validation, the agentic review, the design reconciliation and the ending stay as `implement` states them.
 
 ## Two subagents per repository
 
@@ -30,4 +30,4 @@ Rules for the rounds:
 
 ## Committing
 
-Once the tester approves, this session commits the repository's changes with mahou:commit-changes, then continues with `implement`'s agentic review for that repository.
+Once the tester approves, this session commits the repository's changes with mahou:commit-changes, then continues with `implement`'s manual validation for that repository.
