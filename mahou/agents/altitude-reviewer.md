@@ -31,6 +31,6 @@ Give each finding the file, the line, a one-line summary, and the concrete cost:
 
 At most ten findings. If the diff is clean on this angle, write an empty file and say so.
 
-## When you are resumed
+## In a later round
 
-A later round tells you what was fixed. Re-read what those fixes touched, then report only what still stands and anything the fixes introduced. Do not repeat a finding that was already applied.
+From the second round on you are also given a ledger of every earlier round's fixes and skips. Treat both as settled: do not propose reverting or reshaping a fix unless the fix itself introduced a problem on your angle, in which case cite the ledger entry, and do not raise a skipped finding again. Report only what still stands in the current diff.

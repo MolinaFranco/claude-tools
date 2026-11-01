@@ -45,7 +45,7 @@ Give each one the repository's absolute path, the base, the diff, and the path t
 
 Reviewers write findings to that file and return the path and a count. Nothing comes back in the message body, which truncates long reports and costs a round trip to recover.
 
-Spawn them unnamed and keep the `agentId` from each spawn result. That is what resumes them in later rounds.
+Every round spawns fresh reviewers; never resume one from an earlier round. A reviewer that has seen its own last report defends it and repeats what was skipped, and a reviewer resumed per facet only hears about its own fixes, so it can undo what another facet fixed. From the second round on, give every reviewer the ledger (Step 4) as well.
 
 ## Step 3: Apply what came back
 
@@ -57,14 +57,26 @@ Then read every comment the diff adds, yourself, against the project's comments 
 
 Run the repository's linters and tests afterwards, scoped to the files you touched rather than the whole tree. The project's `CLAUDE.md` usually names the commands; when it does not, detect them from the lockfile or manifest and say which you ran.
 
-## Step 4: Round again, up to three times
+## Step 4: Record the round and show it
 
-Resume each reviewer by its `agentId` and tell it what you fixed. It already holds what it reviewed last round and works out for itself what to re-read.
+Keep one ledger per repository at `agentic-review/<repo>.md` in the change's scratch folder. At the end of each round, append a section for the round with every fix applied (file, line, the facet that raised it, what changed) and every skip with its reason, then the linter and test results.
 
-Stop when a round returns no findings, or after the third round, whichever comes first.
+Show the user the round's status: per repository the count of fixes and skips, one line per fix, each skip with its reason, and the checks' result. Then start the next round without waiting for an answer.
 
-## Step 5: Report and hand off
+## Step 5: Round again, up to three times
 
-Per repository: what each round fixed, what it skipped, and the linter and test results. Write each skipped finding so the user can rule on it without asking back: the problem the reviewer saw and why the reviewer proposed the change, then why the review skipped the finding. Everything stays uncommitted.
+Run Step 2 again with fresh reviewers and the ledger. Tell each reviewer:
+
+- Every fix in the ledger is settled. Do not propose reverting or reshaping one, unless the fix itself introduced a problem on your angle; then cite the ledger entry.
+- Every skip in the ledger is settled. Do not raise it again.
+- Report only what still stands on your angle in the current diff.
+
+When applying the round's findings, drop any finding that reverses a ledger fix or repeats a ledger skip, and record it as dropped in the round's section.
+
+Stop when a round returns no findings that survive, or after the third round, whichever comes first.
+
+## Step 6: Report and hand off
+
+Per repository: what each round fixed, what it skipped, and the linter and test results, with the ledger path. Write each skipped finding so the user can rule on it without asking back: the problem the reviewer saw and why the reviewer proposed the change, then why the review skipped the finding. Everything stays uncommitted.
 
 Then hand off to mahou:human-review.

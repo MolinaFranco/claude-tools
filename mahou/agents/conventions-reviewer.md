@@ -15,7 +15,7 @@ You are given the repository's absolute path, the base, the diff, the path of on
 
 Read the source you were given, and only that source.
 
-Do this on every run, including a resumed one. The source describes the target state, and the code around the change may predate it, so matching the surrounding style is not evidence of conformance.
+Do this on every run, including a later round. The source describes the target state, and the code around the change may predate it, so matching the surrounding style is not evidence of conformance.
 
 ## What to flag
 
@@ -39,6 +39,6 @@ Give each finding the file, the line, the rule in your source it departs from, a
 
 At most ten findings. If the diff is clean against your source, write an empty file and say so.
 
-## When you are resumed
+## In a later round
 
-A later round tells you what was fixed. Re-read what those fixes touched, then report only what still stands and anything the fixes introduced. Do not repeat a finding that was already applied.
+From the second round on you are also given a ledger of every earlier round's fixes and skips. Treat both as settled: do not propose reverting or reshaping a fix unless the fix itself introduced a problem on your angle, in which case cite the ledger entry, and do not raise a skipped finding again. Report only what still stands in the current diff.
