@@ -1,12 +1,12 @@
-# claude-config
+# claude-tools
 
 Configuración personal de Claude Code de MolinaFranco: un marketplace de plugins basado en [asermax/claude-plugins](https://github.com/asermax/claude-plugins), más mis dotfiles de `~/.claude/`.
 
 ## En una máquina nueva
 
 ```bash
-git clone git@github.com:MolinaFranco/claude-config.git ~/programing/claude-config
-~/programing/claude-config/dotfiles/install.sh   # enlaza settings.json (y CLAUDE.md / keybindings.json si existen)
+git clone git@github.com:MolinaFranco/claude-tools.git ~/programing/claude-tools
+~/programing/claude-tools/dotfiles/install.sh   # enlaza settings.json (y CLAUDE.md / keybindings.json si existen)
 ```
 
 `dotfiles/settings.json` ya registra el marketplace `molina-plugins`. Después, dentro de Claude Code:

@@ -6,7 +6,7 @@
     "molina-plugins": {
       "source": {
         "source": "github",
-        "repo": "MolinaFranco/claude-config"
+        "repo": "MolinaFranco/claude-tools"
       }
     }
   }

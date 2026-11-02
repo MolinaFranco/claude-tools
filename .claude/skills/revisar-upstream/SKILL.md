@@ -8,7 +8,7 @@ description: Revisar qué cambió en el repo original (asermax/claude-plugins, r
 Este repo es una copia personal de `github.com/asermax/claude-plugins`. No se hace rebase ni merge con el original: los cambios se revisan cada tanto y se traen a mano.
 
 - Remoto `upstream`: el repo original (fetch solamente; el push está deshabilitado).
-- Remoto `origin`: el repo propio (`MolinaFranco/claude-config`).
+- Remoto `origin`: el repo propio (`MolinaFranco/claude-tools`).
 - Tag `upstream-revisado`: el último commit de upstream que ya se revisó. Todo lo anterior ya se miró y se trajo o se descartó.
 - Rama de upstream: `master`.
 
