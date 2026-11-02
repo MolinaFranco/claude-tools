@@ -1,10 +1,10 @@
 {
-  "name": "asermax-plugins",
+  "name": "molina-plugins",
   "metadata": {
     "version": "3.17.34"
   },
   "owner": {
-    "name": "Agustin Carrasco"
+    "name": "MolinaFranco"
   },
   "plugins": [
     {
@@ -26,11 +26,6 @@
       "name": "haft",
       "source": "./haft",
       "description": "FPF reasoning methodology for structured decision-making with auditable hypothesis-evidence trails (formerly quint)"
-    },
-    {
-      "name": "openspec",
-      "source": "./openspec",
-      "description": "Spec-driven development with Draft -> Review -> Implement -> Archive workflow for requirement alignment"
     },
     {
       "name": "katachi",

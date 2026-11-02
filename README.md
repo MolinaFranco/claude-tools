@@ -1,4 +1,36 @@
-# Claude Code Plugins
+# claude-config
+
+Configuración personal de Claude Code de MolinaFranco: un marketplace de plugins basado en [asermax/claude-plugins](https://github.com/asermax/claude-plugins), más mis dotfiles de `~/.claude/`.
+
+## En una máquina nueva
+
+```bash
+git clone git@github.com:MolinaFranco/claude-config.git ~/programing/claude-config
+~/programing/claude-config/dotfiles/install.sh   # enlaza settings.json (y CLAUDE.md / keybindings.json si existen)
+```
+
+`dotfiles/settings.json` ya registra el marketplace `molina-plugins`. Después, dentro de Claude Code:
+
+```
+/plugin install <plugin>@molina-plugins
+/plugin marketplace update molina-plugins      # para tomar cambios nuevos
+```
+
+## Relación con el original
+
+No es un fork con rebase: los cambios del original se revisan cada tanto y se traen a mano.
+
+- `upstream` = asermax/claude-plugins (solo fetch), `origin` = este repo.
+- El tag `upstream-revisado` marca hasta dónde ya se revisó.
+- La skill `revisar-upstream` (en `.claude/skills/`) guía la revisión: pedile a Claude "revisá el upstream".
+
+Cambios respecto del original: marketplace renombrado a `molina-plugins`, y saqué la entrada `openspec` (su carpeta no existe en el repo).
+
+---
+
+*README original:*
+
+## Claude Code Plugins
 
 Personal collection of Claude Code plugins for development workflows.
 

@@ -1,0 +1,13 @@
+{
+  "theme": "dark",
+  "skipDangerousModePermissionPrompt": true,
+  "switchModelsOnFlag": false,
+  "extraKnownMarketplaces": {
+    "molina-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "MolinaFranco/claude-config"
+      }
+    }
+  }
+}
